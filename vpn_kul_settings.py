@@ -45,15 +45,22 @@ def delete_credentials():
 
     messagebox.showinfo("Deleted", "Login has been deleted successfully.")
 
-def show_password(event):
-    password_entry.config(show="")
-    if use_icons:
-        eye_button.config(image=eye_open)
+password_visible = False
 
-def hide_password(event):
-    password_entry.config(show="*")
-    if use_icons:
-        eye_button.config(image=eye_closed)
+def toggle_password_visibility(event):
+    global password_visible
+    password_visible = not password_visible
+    
+    if password_visible:
+        password_entry.config(show="")
+        if use_icons:
+            eye_button.config(image=eye_open)
+            eye_button.image = eye_open  # Keep a reference
+    else:
+        password_entry.config(show="*")
+        if use_icons:
+            eye_button.config(image=eye_closed)
+            eye_button.image = eye_closed  # Keep a reference
 
 def show_main_menu():
     clear_frame()
@@ -82,13 +89,13 @@ def show_modify_view():
     password_entry.pack(side=tk.LEFT)
 
     if use_icons:
-        eye_button = tk.Button(pw_frame, image=eye_closed, width=25, height=25)  # Adjust width and height as needed
+        eye_button = tk.Button(pw_frame, image=eye_closed, width=25, height=25)
+        eye_button.image = eye_closed  # Keep a reference
     else:
         eye_button = tk.Button(pw_frame, text="👁", width=3)
     
     eye_button.pack(side=tk.LEFT, padx=(5, 0))
-    eye_button.bind("<ButtonPress>", show_password)
-    eye_button.bind("<ButtonRelease>", hide_password)
+    eye_button.bind("<Button-1>", toggle_password_visibility)
 
     # Action buttons
     tk.Button(root, text="Save", command=save_credentials).pack(pady=10)
@@ -112,15 +119,19 @@ root.resizable(False, False)
 
 # Try loading icons
 try:
-    # Load and resize the icons
-    eye_open_original = tk.PhotoImage(file="eye.png")
+    # Load the icons
+    eye_open_original = tk.PhotoImage(file="eye_open.png")
     eye_closed_original = tk.PhotoImage(file="eye_closed.png")
     
-    # Resize to 20x20 pixels (adjust this size as needed)
-    eye_open = eye_open_original.subsample(int(eye_open_original.width() / 20), int(eye_open_original.height() / 20))
-    eye_closed = eye_closed_original.subsample(int(eye_closed_original.width() / 20), int(eye_closed_original.height() / 20))
+    # Calculate the subsample factor
+    subsample_factor = max(eye_open_original.width(), eye_open_original.height()) // 20
+    
+    # Resize the icons
+    eye_open = eye_open_original.subsample(subsample_factor)
+    eye_closed = eye_closed_original.subsample(subsample_factor)
     
     use_icons = True
+    print("Icons loaded successfully")  # Debug print
 except Exception as e:
     print(f"Error loading icons: {e}")
     use_icons = False
