@@ -1,1 +1,1 @@
-{"button_press_method": "image_recognition", "manual_x": 1517, "manual_y": 661, "speed_multiplier": 1.0}
+{"button_press_method": "manual_coordinates", "manual_x": 1517, "manual_y": 661, "speed_multiplier": 1.0, "close_tabs": true, "close_ivanti": true}

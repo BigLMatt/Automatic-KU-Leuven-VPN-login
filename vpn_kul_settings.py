@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, filedialog
+from tkinter.font import Font
 import keyring
 import os
 import json
@@ -20,7 +21,10 @@ def load_config():
         "button_press_method": "image_recognition",
         "manual_x": 0,
         "manual_y": 0,
-        "speed_multiplier": 1.0
+        "speed_multiplier": 1.0,
+        "close_tabs": True,
+        "close_ivanti": True,
+        "ivanti_path": r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk"
     }
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
@@ -38,7 +42,10 @@ def save_config(config):
         "button_press_method": "image_recognition",
         "manual_x": 0,
         "manual_y": 0,
-        "speed_multiplier": 1.0
+        "speed_multiplier": 1.0,
+        "close_tabs": True,
+        "close_ivanti": True,
+        "ivanti_path": r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk"
     }
     # Ensure all keys are present in the config before saving
     for key in default_config:
@@ -111,8 +118,8 @@ def show_main_menu():
     tk.Label(root, text="What do you want to do?").pack(pady=20)
     tk.Button(root, text="✏️  Setup login", width=30, command=show_modify_view).pack(pady=5)
     tk.Button(root, text="🗑️  Delete login", width=30, command=show_delete_view).pack(pady=5)
-    tk.Button(root, text="⚙️  Options", width=30, command=show_options_menu).pack(pady=5)
     tk.Button(root, text="🖱️  Set Manual Click Position", width=30, command=show_manual_click_menu).pack(pady=5)
+    tk.Button(root, text="⚙️  Options", width=30, command=show_options_menu).pack(pady=5)
     tk.Button(root, text="❌ Close", width=30, command=root.quit).pack(pady=5)
 
 def show_modify_view():
@@ -170,8 +177,13 @@ def show_options_menu():
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
 
+    # Styling
+    title_font = Font(family="Helvetica", size=12, weight="bold")
+    section_bg = "#f0f0f0"
+    
     # Button Press Method
-    tk.Label(scrollable_frame, text="Button Press Method", font=("", 12, "bold")).pack(pady=(20, 10))
+    method_frame = ttk.LabelFrame(scrollable_frame, text="Button Press Method", padding=10)
+    method_frame.pack(fill="x", padx=10, pady=10)
     
     method_var = tk.StringVar(value=config["button_press_method"])
     
@@ -182,37 +194,67 @@ def show_options_menu():
     ]
     
     for text, value in methods:
-        tk.Radiobutton(scrollable_frame, text=text, variable=method_var, value=value).pack(anchor="w", padx=20, pady=5)
+        ttk.Radiobutton(method_frame, text=text, variable=method_var, value=value).pack(anchor="w", pady=2)
 
     # Manual Click Position
-    tk.Label(scrollable_frame, text="Manual Click Position", font=("", 12, "bold")).pack(pady=(20, 10))
+    click_frame = ttk.LabelFrame(scrollable_frame, text="Manual Click Position", padding=10)
+    click_frame.pack(fill="x", padx=10, pady=10)
     
-    x_frame = tk.Frame(scrollable_frame)
-    x_frame.pack(fill="x", padx=20)
-    tk.Label(x_frame, text="X coordinate:").pack(side="left")
-    x_entry = tk.Entry(x_frame, width=10)
+    x_frame = ttk.Frame(click_frame)
+    x_frame.pack(fill="x")
+    ttk.Label(x_frame, text="X coordinate:").pack(side="left")
+    x_entry = ttk.Entry(x_frame, width=10)
     x_entry.insert(0, str(config["manual_x"]))
-    x_entry.pack(side="left", padx=(0, 10))
+    x_entry.pack(side="left", padx=(5, 10))
     
-    y_frame = tk.Frame(scrollable_frame)
-    y_frame.pack(fill="x", padx=20)
-    tk.Label(y_frame, text="Y coordinate:").pack(side="left")
-    y_entry = tk.Entry(y_frame, width=10)
+    y_frame = ttk.Frame(click_frame)
+    y_frame.pack(fill="x", pady=(5, 0))
+    ttk.Label(y_frame, text="Y coordinate:").pack(side="left")
+    y_entry = ttk.Entry(y_frame, width=10)
     y_entry.insert(0, str(config["manual_y"]))
-    y_entry.pack(side="left", padx=(0, 10))
+    y_entry.pack(side="left", padx=(5, 10))
 
     # Speed Multiplier
-    tk.Label(scrollable_frame, text="Speed Multiplier", font=("", 12, "bold")).pack(pady=(20, 10))
+    speed_frame = ttk.LabelFrame(scrollable_frame, text="Speed Multiplier", padding=10)
+    speed_frame.pack(fill="x", padx=10, pady=10)
+    
     speed_var = tk.DoubleVar(value=config["speed_multiplier"])
-    speed_slider = ttk.Scale(scrollable_frame, from_=0.5, to=2.0, orient="horizontal", variable=speed_var, length=200)
-    speed_slider.pack()
-    speed_label = tk.Label(scrollable_frame, text=f"Current: {speed_var.get():.2f}x")
+    speed_slider = ttk.Scale(speed_frame, from_=0.5, to=2.0, orient="horizontal", variable=speed_var, length=200)
+    speed_slider.pack(fill="x")
+    speed_label = ttk.Label(speed_frame, text=f"Current: {speed_var.get():.2f}x")
     speed_label.pack()
 
     def update_speed_label(event):
         speed_label.config(text=f"Current: {speed_var.get():.2f}x")
 
     speed_slider.bind("<Motion>", update_speed_label)
+
+    # Closing Options
+    closing_frame = ttk.LabelFrame(scrollable_frame, text="Closing Options", padding=10)
+    closing_frame.pack(fill="x", padx=10, pady=10)
+    
+    close_tabs_var = tk.BooleanVar(value=config.get("close_tabs", True))
+    close_tabs_check = ttk.Checkbutton(closing_frame, text="Close browser tabs after connection", variable=close_tabs_var)
+    close_tabs_check.pack(anchor="w", pady=2)
+
+    close_ivanti_var = tk.BooleanVar(value=config.get("close_ivanti", True))
+    close_ivanti_check = ttk.Checkbutton(closing_frame, text="Close Ivanti after connection", variable=close_ivanti_var)
+    close_ivanti_check.pack(anchor="w", pady=2)
+
+    # Ivanti Path
+    ivanti_frame = ttk.LabelFrame(scrollable_frame, text="Ivanti Path", padding=10)
+    ivanti_frame.pack(fill="x", padx=10, pady=10)
+    
+    ivanti_path_var = tk.StringVar(value=config.get("ivanti_path", r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk"))
+    ivanti_path_entry = ttk.Entry(ivanti_frame, textvariable=ivanti_path_var, width=50)
+    ivanti_path_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
+    
+    def browse_ivanti_path():
+        path = filedialog.askopenfilename(filetypes=[("Shortcut files", "*.lnk"), ("All files", "*.*")])
+        if path:
+            ivanti_path_var.set(path)
+    
+    ttk.Button(ivanti_frame, text="Browse", command=browse_ivanti_path).pack(side="right")
 
     def save_options():
         config["button_press_method"] = method_var.get()
@@ -223,12 +265,15 @@ def show_options_menu():
             messagebox.showerror("Error", "Please enter valid integer coordinates.")
             return
         config["speed_multiplier"] = speed_var.get()
+        config["close_tabs"] = close_tabs_var.get()
+        config["close_ivanti"] = close_ivanti_var.get()
+        config["ivanti_path"] = ivanti_path_var.get()
         save_config(config)
         messagebox.showinfo("Saved", "Options have been saved successfully.")
         show_main_menu()
     
-    tk.Button(scrollable_frame, text="Save", command=save_options).pack(pady=(20, 10))
-    tk.Button(scrollable_frame, text="Back to menu", command=show_main_menu).pack()
+    ttk.Button(scrollable_frame, text="Save", command=save_options).pack(pady=(20, 10))
+    ttk.Button(scrollable_frame, text="Back to menu", command=show_main_menu).pack(pady=(0, 10))
 
     # Pack the canvas and scrollbar
     canvas.pack(side="left", fill="both", expand=True)
@@ -264,7 +309,7 @@ def show_manual_click_menu():
         capture_active = True
         
         # Open Ivanti Secure Access
-        ivanti_path = r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk"
+        ivanti_path = config.get("ivanti_path", r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk")
         os.startfile(ivanti_path)
         time.sleep(1.2)  # Wait for Ivanti to open
         
@@ -299,7 +344,7 @@ def clear_frame():
 # Setup window
 root = tk.Tk()
 root.title("VPN login setup")
-root.geometry("430x375")
+root.geometry("700x550")
 root.iconbitmap(os.path.join(ASSETS_FOLDER, "programicon.ico"))
 root.resizable(False, False)
 
