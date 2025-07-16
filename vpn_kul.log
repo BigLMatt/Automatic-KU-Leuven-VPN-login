@@ -156,3 +156,78 @@ pyautogui.ImageNotFoundException
 2025-07-15 22:57:01,012 - INFO - Found middle button directly
 2025-07-15 22:57:01,013 - INFO - Attempting to click the middle button at: (1386, 701)
 2025-07-15 22:57:01,117 - INFO - Clicked the middle button
+2025-07-16 11:42:19,278 - DEBUG - Loading KWallet
+2025-07-16 11:42:19,282 - DEBUG - Loading SecretService
+2025-07-16 11:42:19,284 - DEBUG - Loading Windows
+2025-07-16 11:42:19,292 - DEBUG - Loaded ctypes backend
+2025-07-16 11:42:19,303 - DEBUG - Loading chainer
+2025-07-16 11:42:19,304 - DEBUG - Loading libsecret
+2025-07-16 11:42:19,306 - DEBUG - Loading macOS
+2025-07-16 11:42:21,017 - INFO - Attempting to locate button images in region: (1305, 592, 153, 192)
+2025-07-16 11:42:21,200 - ERROR - An error occurred while trying to find or click the button: 
+2025-07-16 11:42:21,252 - ERROR - Traceback (most recent call last):
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyautogui\__init__.py", line 172, in wrapper
+    return wrappedFunction(*args, **kwargs)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyautogui\__init__.py", line 210, in locateOnScreen
+    return pyscreeze.locateOnScreen(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 405, in locateOnScreen
+    retVal = locate(image, screenshotIm, **kwargs)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 383, in locate
+    points = tuple(locateAll(needleImage, haystackImage, **kwargs))
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 257, in _locateAll_opencv
+    raise ImageNotFoundException('Could not locate the image (highest confidence = %.3f)' % result.max())
+pyscreeze.ImageNotFoundException: Could not locate the image (highest confidence = 0.332)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\Matteo\Desktop\VPN KUL\vpn_kul.py", line 84, in press_button
+    middle_button = pyautogui.locateOnScreen('middle_button.png', confidence=0.5, region=region)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyautogui\__init__.py", line 174, in wrapper
+    raise ImageNotFoundException  # Raise PyAutoGUI's ImageNotFoundException.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pyautogui.ImageNotFoundException
+
+2025-07-16 11:42:22,947 - INFO - Error screenshot saved as error_screenshot.png
+2025-07-16 11:58:33,876 - DEBUG - Loading KWallet
+2025-07-16 11:58:33,878 - DEBUG - Loading SecretService
+2025-07-16 11:58:33,879 - DEBUG - Loading Windows
+2025-07-16 11:58:33,887 - DEBUG - Loaded ctypes backend
+2025-07-16 11:58:33,897 - DEBUG - Loading chainer
+2025-07-16 11:58:33,897 - DEBUG - Loading libsecret
+2025-07-16 11:58:33,899 - DEBUG - Loading macOS
+2025-07-16 11:58:35,577 - INFO - Attempting to locate button images in region: (1305, 592, 153, 192)
+2025-07-16 11:58:35,692 - ERROR - An error occurred while trying to find or click the button: Failed to read middle_button.png because file is missing, has improper permissions, or is an unsupported or invalid format
+2025-07-16 11:58:35,697 - ERROR - Traceback (most recent call last):
+  File "c:\Users\Matteo\Desktop\VPN KUL\vpn_kul.py", line 84, in press_button
+    middle_button = pyautogui.locateOnScreen('middle_button.png', confidence=0.5, region=region)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyautogui\__init__.py", line 172, in wrapper
+    return wrappedFunction(*args, **kwargs)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyautogui\__init__.py", line 210, in locateOnScreen
+    return pyscreeze.locateOnScreen(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 405, in locateOnScreen
+    retVal = locate(image, screenshotIm, **kwargs)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 383, in locate
+    points = tuple(locateAll(needleImage, haystackImage, **kwargs))
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 231, in _locateAll_opencv
+    needleImage = _load_cv2(needleImage, grayscale)
+  File "C:\Users\Matteo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyscreeze\__init__.py", line 193, in _load_cv2
+    raise IOError(
+    ...<3 lines>...
+    )
+OSError: Failed to read middle_button.png because file is missing, has improper permissions, or is an unsupported or invalid format
+
+2025-07-16 11:58:35,985 - INFO - Error screenshot saved as error_screenshot.png
+2025-07-16 12:01:51,119 - DEBUG - Loading KWallet
+2025-07-16 12:01:51,121 - DEBUG - Loading SecretService
+2025-07-16 12:01:51,122 - DEBUG - Loading Windows
+2025-07-16 12:01:51,130 - DEBUG - Loaded ctypes backend
+2025-07-16 12:01:51,139 - DEBUG - Loading chainer
+2025-07-16 12:01:51,140 - DEBUG - Loading libsecret
+2025-07-16 12:01:51,142 - DEBUG - Loading macOS
+2025-07-16 12:01:52,850 - INFO - Attempting to locate button images in region: (1305, 592, 153, 192)
+2025-07-16 12:01:53,002 - INFO - Found middle button directly
+2025-07-16 12:01:53,002 - INFO - Attempting to click the middle button at: (1385, 701)
+2025-07-16 12:01:53,107 - INFO - Clicked the middle button
