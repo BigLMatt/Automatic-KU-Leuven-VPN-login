@@ -1,24 +1,33 @@
 import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
 from tkinter.font import Font
+
 import keyring
+import pyautogui
+from pynput import mouse
+
 import os
 import json
-import pyautogui
 import time
-import threading
 import sys
-from pynput import mouse
 
 ENV_FILE = ".env"
 SERVICE_NAME = "kuleuvenvpn"
 CONFIG_FILE = "vpn_config.json"
 ASSETS_FOLDER = "assets"
 
+def resource_path(relative_path):
+    """ Get correct path, works both in development and PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 # Load configuration
 def load_config():
     default_config = {
-        "button_press_method": "image_recognition",
+        "button_press_method": "manual_coordinates",
         "manual_x": 0,
         "manual_y": 0,
         "speed_multiplier": 1.0,
@@ -39,7 +48,7 @@ def load_config():
 # Save configuration
 def save_config(config):
     default_config = {
-        "button_press_method": "image_recognition",
+        "button_press_method": "manual_coordinates",
         "manual_x": 0,
         "manual_y": 0,
         "speed_multiplier": 1.0,
@@ -345,13 +354,18 @@ def clear_frame():
 root = tk.Tk()
 root.title("VPN login setup")
 root.geometry("700x550")
-root.iconbitmap(os.path.join(ASSETS_FOLDER, "programicon.ico"))
+
+# Set both window corner and taskbar icons
+icon_path = resource_path(os.path.join(ASSETS_FOLDER, "programicon.png"))
+icon = tk.PhotoImage(file=icon_path)
+root.iconphoto(True, icon)
+
 root.resizable(False, False)
 
 # Try loading icons
 try:
-    eye_open_original = tk.PhotoImage(file=os.path.join(ASSETS_FOLDER, "eye_open.png"))
-    eye_closed_original = tk.PhotoImage(file=os.path.join(ASSETS_FOLDER, "eye_closed.png"))
+    eye_open_original = tk.PhotoImage(file=resource_path(os.path.join(ASSETS_FOLDER, "eye_open.png")))
+    eye_closed_original = tk.PhotoImage(file=resource_path(os.path.join(ASSETS_FOLDER, "eye_closed.png")))
     
     subsample_factor = max(eye_open_original.width(), eye_open_original.height()) // 20
     
@@ -359,7 +373,6 @@ try:
     eye_closed = eye_closed_original.subsample(subsample_factor)
     
     use_icons = True
-    print("Icons loaded successfully")
 except Exception as e:
     print(f"Error loading icons: {e}")
     use_icons = False

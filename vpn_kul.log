@@ -1,9 +1,0 @@
-2025-07-16 19:09:55,729 - DEBUG - Loading KWallet
-2025-07-16 19:09:55,731 - DEBUG - Loading SecretService
-2025-07-16 19:09:55,733 - DEBUG - Loading Windows
-2025-07-16 19:09:55,746 - DEBUG - Loaded ctypes backend
-2025-07-16 19:09:55,759 - DEBUG - Loading chainer
-2025-07-16 19:09:55,760 - DEBUG - Loading libsecret
-2025-07-16 19:09:55,763 - DEBUG - Loading macOS
-2025-07-16 19:09:57,500 - INFO - Using manual coordinates: (1517, 661)
-2025-07-16 19:09:57,607 - INFO - Clicked at manual position (1517, 661)
