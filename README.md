@@ -1,4 +1,4 @@
-# automatic-KU-Leuven-Ivanti-VPN-login
+# Automatic KU Leuven VPN login
 
 Once logged in to toledo, the script calls all the nessecary steps to log into the KU Leuven VPN in order to be able to use software like siemens NX off campus.
 

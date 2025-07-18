@@ -18,7 +18,7 @@ def resource_path(relative_path):
 SERVICE_NAME = "kuleuvenvpn"
 ENV_FILE = ".env"
 CONFIG_FILE = "vpn_config.json"
-ASSETS_FOLDER = resource_path("assets")
+ASSETS_FOLDER = resource_path("assets_connector")
 
 def load_username():
     if os.path.exists(ENV_FILE):
@@ -36,7 +36,7 @@ else:
 
 if not USERNAME or not PASSWORD:
     ctypes.windll.user32.MessageBoxW(0, "Missing VPN credentials.\nPlease run the setup tool to configure them.", "VPN Login Error", 0x10)
-    exit(1)
+    sys.exit(1)
 
 def load_config():
     if os.path.exists(CONFIG_FILE):
@@ -58,7 +58,7 @@ config = load_config()
 if config["button_press_method"] in ["manual_coordinates", "both_image_first"]:
     if not config["manual_x"] or not config["manual_y"]:
         ctypes.windll.user32.MessageBoxW(0, "Missing or invalid manual click coordinates.\nPlease run the setup tool to configure the click coordinates.", "VPN Login Error", 0x10)
-        exit(1)
+        sys.exit(1)
 
 ivanti_path = config.get("ivanti_path", r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk")
 speed_multiplier = config.get("speed_multiplier", 1.0)
@@ -86,7 +86,7 @@ def press_button():
 
     if method in ("image_recognition", "both_image_first"):
         try:
-            middle_button = pyautogui.locateOnScreen(resource_path(os.path.join(ASSETS_FOLDER, 'middle_button.png')), confidence=0.7, region=region)
+            middle_button = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'middle_button.png'), confidence=0.7, region=region)
 
             if not middle_button:
                 button_locations = list(pyautogui.locateAllOnScreen(os.path.join(ASSETS_FOLDER, 'connect_button.png'), confidence=0.6, region=region))
@@ -103,10 +103,10 @@ def press_button():
                 pyautogui.click(config["manual_x"], config["manual_y"])
             else:
                 # pyautogui.screenshot("debug_screenshot.png")  # Debug screenshot
-                exit()
+                sys.exit()
         except Exception:
             # pyautogui.screenshot("error_screenshot.png")  # Error screenshot
-            exit()
+            sys.exit()
     elif method == "manual_coordinates":
         pyautogui.click(config["manual_x"], config["manual_y"])
 
