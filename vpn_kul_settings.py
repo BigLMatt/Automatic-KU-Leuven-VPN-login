@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, ttk, filedialog, PhotoImage
+from tkinter import messagebox, ttk, filedialog
 from tkinter.font import Font
 
 import keyring
@@ -112,7 +112,7 @@ def show_language_menu():
     for lang_name, lang_code in languages:
         ttk.Button(root, text=lang_name, width=30, command=lambda lc=lang_code: change_language(lc)).pack(pady=5)
 
-    ttk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack(pady=20)
+    ttk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack(pady=(0, 10), ipadx=5, ipady=3)
 
 def change_language(lang_code):
     config['language'] = lang_code
@@ -195,7 +195,7 @@ def show_modify_view():
 
     # Action buttons
     tk.Button(root, text=get_translation("save"), command=save_credentials).pack(pady=10)
-    tk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack()
+    tk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack(ipadx=5, ipady=3)
 
 def show_delete_view():
     if messagebox.askyesno(get_translation("confirmation"), get_translation("delete_login_confirm")):
@@ -210,14 +210,15 @@ def show_options_menu():
     scrollbar = ttk.Scrollbar(root, orient="vertical", command=canvas.yview)
     scrollable_frame = ttk.Frame(canvas)
 
-    scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(
-            scrollregion=canvas.bbox("all")
-        )
-    )
+    scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+    def resize_scrollable_frame(event):
+        canvas.itemconfig("scrollable_frame", width=event.width)
+
+    canvas.bind("<Configure>", resize_scrollable_frame)
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", tags="scrollable_frame")
     canvas.configure(yscrollcommand=scrollbar.set)
 
     # Styling
@@ -302,8 +303,19 @@ def show_options_menu():
     def save_options():
         config["button_press_method"] = method_var.get()
         try:
-            config["manual_x"] = int(x_entry.get())
-            config["manual_y"] = int(y_entry.get())
+            x = int(x_entry.get())
+            y = int(y_entry.get())
+
+            if x < 0 or y < 0:
+                raise ValueError("Negative coordinates")
+
+            screen_width, screen_height = pyautogui.size()
+            if x > screen_width or y > screen_height:
+                raise ValueError("Coordinates out of screen bounds")
+
+            config["manual_x"] = x
+            config["manual_y"] = y
+
         except ValueError:
             messagebox.showerror(get_translation("error"), get_translation("invalid_coordinates"))
             return
@@ -321,7 +333,7 @@ def show_options_menu():
         show_main_menu()
     
     ttk.Button(scrollable_frame, text=get_translation("save"), command=save_options).pack(pady=(20, 10))
-    ttk.Button(scrollable_frame, text=get_translation("back_to_menu"), command=back_to_menu_with_unbind).pack(pady=(0, 10))
+    ttk.Button(scrollable_frame, text=get_translation("back_to_menu"), command=back_to_menu_with_unbind).pack(pady=(0, 10), ipadx=5, ipady=3)
 
     # Pack the canvas and scrollbar
     canvas.pack(side="left", fill="both", expand=True)
@@ -383,7 +395,7 @@ def show_manual_click_menu():
     start_button = tk.Button(root, text=get_translation("start_position_capture"), command=start_capture)
     start_button.pack(pady=20)
     
-    tk.Button(root, text=get_translation("back_to_menu"), command=lambda: [setattr(sys.modules[__name__], 'capture_active', False), show_main_menu()]).pack()
+    tk.Button(root, text=get_translation("back_to_menu"), command=lambda: [setattr(sys.modules[__name__], 'capture_active', False), show_main_menu()]).pack(ipadx=5, ipady=3)
 
 def clear_frame():
     root.unbind_all("<MouseWheel>")  # Unbind mousewheel event
