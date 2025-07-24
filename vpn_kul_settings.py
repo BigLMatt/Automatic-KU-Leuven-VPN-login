@@ -11,6 +11,9 @@ import json
 import time
 import sys
 
+import ctypes
+from ctypes import wintypes
+
 from translations import translations
 
 def get_translation(key):
@@ -373,6 +376,10 @@ def show_manual_click_menu():
         os.startfile(ivanti_path)
         time.sleep(1.2)  # Wait for Ivanti to open
         
+        # Find and activate Ivanti window
+        find_and_activate_ivanti_window()
+        time.sleep(0.5)  # Give it a moment to come to front
+        
         start_button.config(state=tk.DISABLED)
         position_label.config(text=get_translation("click_desired_position"))
         
@@ -409,6 +416,41 @@ def load_username():
                 if line.startswith("USERNAME="):
                     return line.strip().split("=", 1)[1]
     return ""
+
+# Windows API constants
+SW_RESTORE = 9
+SW_SHOW = 5
+
+# Windows API functions
+user32 = ctypes.windll.user32
+kernel32 = ctypes.windll.kernel32
+
+def find_and_activate_ivanti_window():
+    """Find Ivanti window and bring it to the front"""
+    def enum_windows_proc(hwnd, lParam):
+        if user32.IsWindowVisible(hwnd):
+            length = user32.GetWindowTextLengthW(hwnd)
+            if length > 0:
+                buffer = ctypes.create_unicode_buffer(length + 1)
+                user32.GetWindowTextW(hwnd, buffer, length + 1)
+                window_title = buffer.value.lower()
+                
+                # Check for Ivanti-related window titles
+                if any(keyword in window_title for keyword in ['ivanti', 'secure access client']):
+                    # Restore window if minimized
+                    user32.ShowWindow(hwnd, SW_RESTORE)
+                    # Bring to front
+                    user32.SetForegroundWindow(hwnd)
+                    # Activate the window
+                    user32.SetActiveWindow(hwnd)
+                    return False  # Stop enumeration
+        return True
+
+    # Define the callback function type
+    EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, wintypes.LPARAM)
+    
+    # Enumerate all windows
+    user32.EnumWindows(EnumWindowsProc(enum_windows_proc), 0)
 
 # Setup window
 root = tk.Tk()

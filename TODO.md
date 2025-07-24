@@ -1,7 +1,7 @@
 #TODO
 
 - [x] Show password eye more visible
-- [ ] Make sure Ivanti is in front of tabs
+- [x] Make sure Ivanti is in front of tabs
 - [ ] Fix pyautoGUI button recognition
 - [ ] Bundle config and .env better so .exe's can be standalone
 - [ ] Add possibility of showing logo with actions when running connector
@@ -14,3 +14,4 @@
 - [ ] Optimise timings
 - [ ] Make UI not dependent on screen size
 - [ ] Help button that refers to README or manual
+- [ ] Fix lag after setting manual click
