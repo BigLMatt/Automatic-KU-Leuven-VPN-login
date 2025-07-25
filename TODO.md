@@ -15,3 +15,4 @@
 - [ ] Make UI not dependent on screen size
 - [ ] Help button that refers to README or manual
 - [ ] Fix lag after setting manual click
+- [ ] Wait for toledo login
