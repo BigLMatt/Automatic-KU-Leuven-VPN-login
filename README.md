@@ -10,16 +10,16 @@ Only windows installations have been tested.
 
 Two .exe files are provided, one for settings (vpn_kul_settings.exe), and one for actually running the automation of VPN login (vpn_kul.exe). Ivanti secure access should already be installed.
 
-There is also a **vpn_config.json file and an .env that need to stay together with the .exe files.** So it is best to make a shortcut to the files or look them up in windows search for use.
+There is also a **vpn_config.json file and an .env that need to stay together with the .exe files.** So it is best to make a shortcut to the files on your desktop.
 
 ### Setup
 
 To use the vpn_kul file, you need to **provide your login**, r-number and password (the password is stored safely in a keyring).
 Other things like if the browser tabs should be closed after connection can be selected.
 
-The buttons that need to be pressed (mainly the one for selecting B-zone) can be selected by image recogniton or by manually providing a click coordinate by running **"Set manual click position" and selecting "Manual Coordinates"** in the options menu (normally default).
+The buttons that need to be pressed (mainly the one for selecting B-zone) can be selected by image recogniton or by manually providing a click coordinate by running **"Set manual click position" and selecting "Manual Coordinates"** in the options menu. This option can be helpfull if the image recognition does not work well on your machine.
 Ivanti is pulled up then and you should click the B-zone connect button, this position is then recorded and saved.
-There is also an image recognition option for clicking the button but this doesn't work well as of yet.
+There is also an image recognition option for clicking the button which is selected by default.
 
 Other stability issues may be solved by **checking if the ivanti secure access path references correctly to the one on your PC**. The speed of the different actions can be slowed to 0.5 for stability if the clicks are too fast. The actions can also be sped up to 2 times normal speed.
 
@@ -53,4 +53,4 @@ Ivanti secure access and the two browser tabs can be closed automatically.
 
 After setting the manual click coordinate, there is a few seconds of noticable lag.
 
-The image recognition clicks A-zone most of the time.
+When B-zone is not selected in blue (happens when it has been selected last) or any other UI elements differ, image recognition will not work.
