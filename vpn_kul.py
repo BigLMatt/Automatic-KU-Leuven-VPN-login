@@ -29,7 +29,7 @@ def load_config():
         with open(CONFIG_FILE, 'r') as f:
             return json.load(f)
     return {
-        "button_press_method": "manual_coordinates",
+        "button_press_method": "image_recognition",
         "manual_x": 0,
         "manual_y": 0,
         "speed_multiplier": 1.0,
@@ -68,86 +68,36 @@ def find_and_activate_ivanti_window():
     # Enumerate all windows
     user32.EnumWindows(EnumWindowsProc(enum_windows_proc), 0)
 
-def press_button():
+def press_connect_button():
     method = config["button_press_method"]
 
     if method in ("image_recognition", "both_image_first"):
-        try:
-            # First, try to find the middle_button across the entire screen
-            middle_button = None
-            
-            # Search entire screen without region constraint
-            for confidence in [0.9, 0.8, 0.7, 0.6]:
-                try:
-                    middle_button = pyautogui.locateOnScreen(
-                        os.path.join(ASSETS_FOLDER, 'middle_button.png'), 
-                        confidence=confidence
-                    )
-                    if middle_button:
-                        break
-                except pyautogui.ImageNotFoundException:
-                    pass
-            
-            # If middle_button not found, try connect_button with multiple confidence levels
-            if not middle_button:
-                button_locations = []
-                
-                # Try different confidence levels for better detection
-                # Start with highest confidence and work down
-                for confidence in [0.9, 0.8, 0.7, 0.6]:
-                    try:
-                        button_locations = list(pyautogui.locateAllOnScreen(
-                            os.path.join(ASSETS_FOLDER, 'connect_button.png'), 
-                            confidence=confidence
-                        ))
-                        if button_locations:
-                            print(f"Found {len(button_locations)} button(s) with confidence {confidence}")
-                            break
-                    except pyautogui.ImageNotFoundException:
-                        print(f"No buttons found with confidence {confidence}")
-                        continue
-                    except Exception as e:
-                        print(f"Error at confidence {confidence}: {e}")
-                        continue
-                
-                if button_locations:
-                    # Sort by vertical position and select middle button
-                    button_locations.sort(key=lambda x: x.top)
-                    middle_index = (len(button_locations) - 1) // 2
-                    middle_button = button_locations[middle_index]
-                    print(f"Selected button at position ({middle_button.left}, {middle_button.top})")
+        ivanti_window = None
+    
+        # Start with highest confidence and work down
+        for confidence in [0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65]:
+            try:
+                ivanti_window = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'full_ivanti.png'), confidence=confidence)
+                if ivanti_window:
+                    break
+            except Exception:
+                continue
 
-            # If we found a button, click it
-            if middle_button:
-                middle_x = middle_button.left + middle_button.width // 2
-                middle_y = middle_button.top + middle_button.height // 2
-                print(f"Clicking button at ({middle_x}, {middle_y})")
-                pyautogui.click(middle_x, middle_y)
-                return  # Success, exit function
+        # If we found a button, click it
+        if ivanti_window:
+            rel_x, rel_y = 0.826, 0.398     # Relative coordinates for the connect button in the full Ivanti window
+            connect_button_x = ivanti_window.left + int(ivanti_window.width * rel_x)
+            connect_button_y = ivanti_window.top + int(ivanti_window.height * rel_y)
+            pyautogui.click(connect_button_x, connect_button_y)
+            return
             
-            # If image recognition failed and we have both_image_first method
-            elif method == "both_image_first":
-                print("Image recognition failed, falling back to manual coordinates")
-                pyautogui.click(config["manual_x"], config["manual_y"])
-                return
-            
-            # If pure image recognition failed
-            else:
-                print("Image recognition failed: Button not found on screen")
-                # Take a debug screenshot to help troubleshoot
-                pyautogui.screenshot("debug_screenshot_failed.png")
-                sys.exit()
-                
-        except Exception as e:
-            print(f"Error during image recognition: {e}")
-            if method == "both_image_first":
-                print("Falling back to manual coordinates due to error")
-                pyautogui.click(config["manual_x"], config["manual_y"])
-                return
-            else:
-                # Take an error screenshot for debugging
-                pyautogui.screenshot("error_screenshot.png")
-                sys.exit()
+        # If no button found, use manual coordinates
+        if method == "both_image_first":
+            pyautogui.click(config["manual_x"], config["manual_y"])
+            return
+        else:
+            ctypes.windll.user32.MessageBoxW(0,"Failed to find the connect button.\nMake sure the whole window is visible and B-zone is selected." , "VPN Login Error", 0x10)
+            sys.exit(1)
                 
     elif method == "manual_coordinates":
         pyautogui.click(config["manual_x"], config["manual_y"])
@@ -195,14 +145,15 @@ if __name__ == "__main__":
     webbrowser.open("https://vpn.kuleuven.be")
     adjusted_sleep(0.4)
     os.startfile(ivanti_path)
-    adjusted_sleep(0.4)
-
-    # Find and activate Ivanti window
     find_and_activate_ivanti_window()
-    adjusted_sleep(0.4)  # Give it a moment to come to front
+    adjusted_sleep(0.5)
     
-    press_button()
+    original_pos = pyautogui.position()
+    pyautogui.moveTo(0, 1)   # Move out of the way, to not interfere with image recognition
+    press_connect_button()
+    pyautogui.moveTo(original_pos)
     adjusted_sleep(0.8)
+    
 
     # Fill in credentials
     pyautogui.write(USERNAME)
@@ -215,7 +166,7 @@ if __name__ == "__main__":
 
     # Open extra site
     webbrowser.open('https://uafw.icts.kuleuven.be')
-    adjusted_sleep(1.5)
+    adjusted_sleep(1.2)
 
     # Close tabs and Ivanti if requested
     if config.get("close_tabs", True):

@@ -248,8 +248,8 @@ class TestPressButton(unittest.TestCase):
     @patch('vpn_kul.config', {"button_press_method": "manual_coordinates", "manual_x": 100, "manual_y": 200})
     def test_press_button_manual_coordinates(self, mock_click):
         """Test press_button with manual coordinates method."""
-        from vpn_kul import press_button
-        press_button()
+        from vpn_kul import press_connect_button
+        press_connect_button()
         mock_click.assert_called_once_with(100, 200)
     
     @patch('vpn_kul.sys.exit')
@@ -261,8 +261,8 @@ class TestPressButton(unittest.TestCase):
         mock_locate.return_value = None
         mock_locate_all.return_value = []
         
-        from vpn_kul import press_button
-        press_button()
+        from vpn_kul import press_connect_button
+        press_connect_button()
         
         mock_exit.assert_called_once()
     
@@ -279,8 +279,8 @@ class TestPressButton(unittest.TestCase):
         mock_button.height = 50
         mock_locate.return_value = mock_button
         
-        from vpn_kul import press_button
-        press_button()
+        from vpn_kul import press_connect_button
+        press_connect_button()
         
         # Should click at the center of the button (50 + 100//2, 100 + 50//2)
         mock_click.assert_called_once_with(100, 125)

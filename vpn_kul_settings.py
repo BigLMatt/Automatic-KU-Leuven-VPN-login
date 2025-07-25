@@ -35,7 +35,7 @@ ASSETS_FOLDER = resource_path("assets_settings")
 # Load configuration
 def load_config():
     default_config = {
-        "button_press_method": "manual_coordinates",
+        "button_press_method": "image_recognition",
         "manual_x": 0,
         "manual_y": 0,
         "speed_multiplier": 1.0,
