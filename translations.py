@@ -48,6 +48,9 @@ translations = {
         "all_files": "All files",
         "language": "Language",
         "select_language": "Select a language",
+        "help": "Help",
+        "readme_not_found": "README.md file not found.",
+        "error_reading_readme": "Error reading README file"
     },
     "nl": {
         "invalid_entry": "Ongeldige login",
@@ -97,6 +100,9 @@ translations = {
         "shortcut_files": "Snelkoppeling bestanden",
         "all_files": "Alle bestanden",
         "language": "Taal",
-        "select_language": "Selecteer een taal"
-    } 
+        "select_language": "Selecteer een taal",
+        "help": "Help",
+        "readme_not_found": "README.md bestand niet gevonden.",
+        "error_reading_readme": "Fout bij het lezen van README bestand"
+    }
 }

@@ -100,7 +100,101 @@ def show_main_menu():
     ttk.Button(center_frame, text=f"🖱️  {get_translation('set_manual_click')}", width=30, command=show_manual_click_menu).pack(pady=5)
     ttk.Button(center_frame, text=f"⚙️  {get_translation('options')}", width=30, command=show_options_menu).pack(pady=5)
     ttk.Button(center_frame, text=f"🌐  {get_translation('language')}", width=30, command=show_language_menu).pack(pady=5)
+    ttk.Button(center_frame, text=f"❓ {get_translation('help')}", width=30, command=show_help).pack(pady=5)
     ttk.Button(center_frame, text=f"❌ {get_translation('close')}", width=30, command=root.quit).pack(pady=5)
+
+def show_help():
+    """Display the README.md content in a new window with basic markdown formatting"""
+    help_window = tk.Toplevel(root)
+    help_window.title(get_translation("help"))
+    help_window.geometry("900x700")
+    help_window.resizable(True, True)
+    
+    # Create a frame with scrollbars
+    main_frame = ttk.Frame(help_window)
+    main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+    
+    # Create text widget with scrollbars
+    text_frame = ttk.Frame(main_frame)
+    text_frame.pack(fill="both", expand=True)
+    
+    text_widget = tk.Text(text_frame, wrap="word", font=("Segoe UI", 11), bg="white", fg="black")
+    v_scrollbar = ttk.Scrollbar(text_frame, orient="vertical", command=text_widget.yview)
+    h_scrollbar = ttk.Scrollbar(text_frame, orient="horizontal", command=text_widget.xview)
+    
+    text_widget.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+    
+    # Configure text tags for formatting
+    text_widget.tag_configure("h1", font=("Segoe UI", 18, "bold"), foreground="#2c3e50", spacing1=10, spacing3=5)
+    text_widget.tag_configure("h2", font=("Segoe UI", 16, "bold"), foreground="#34495e", spacing1=8, spacing3=4)
+    text_widget.tag_configure("h3", font=("Segoe UI", 14, "bold"), foreground="#34495e", spacing1=6, spacing3=3)
+    text_widget.tag_configure("h4", font=("Segoe UI", 12, "bold"), foreground="#34495e", spacing1=4, spacing3=2)
+    text_widget.tag_configure("bold", font=("Segoe UI", 11, "bold"))
+    text_widget.tag_configure("italic", font=("Segoe UI", 11, "italic"))
+    text_widget.tag_configure("code", font=("Consolas", 10), background="#f8f9fa", foreground="#e74c3c")
+    text_widget.tag_configure("list_item", lmargin1=20, lmargin2=40)
+    text_widget.tag_configure("numbered_item", lmargin1=20, lmargin2=40)
+    
+    # Pack scrollbars and text widget
+    v_scrollbar.pack(side="right", fill="y")
+    h_scrollbar.pack(side="bottom", fill="x")
+    text_widget.pack(side="left", fill="both", expand=True)
+    
+    def parse_and_insert_markdown(content):
+        """Parse basic markdown and insert with formatting"""
+        lines = content.split('\n')
+        current_pos = "1.0"
+        
+        for line in lines:
+            line_start = text_widget.index(tk.INSERT)
+            
+            # Headers
+            if line.startswith('#### '):
+                text_widget.insert(tk.INSERT, line[5:] + '\n')
+                text_widget.tag_add("h4", line_start, f"{line_start} lineend")
+            elif line.startswith('### '):
+                text_widget.insert(tk.INSERT, line[4:] + '\n')
+                text_widget.tag_add("h3", line_start, f"{line_start} lineend")
+            elif line.startswith('## '):
+                text_widget.insert(tk.INSERT, line[3:] + '\n')
+                text_widget.tag_add("h2", line_start, f"{line_start} lineend")
+            elif line.startswith('# '):
+                text_widget.insert(tk.INSERT, line[2:] + '\n')
+                text_widget.tag_add("h1", line_start, f"{line_start} lineend")
+
+            else:
+                # Handle inline formatting
+                formatted_line = line
+                text_widget.insert(tk.INSERT, formatted_line + '\n')
+                
+                # Apply bold formatting
+                import re
+                bold_pattern = r'\*\*(.*?)\*\*'
+                for match in re.finditer(bold_pattern, line):
+                    start_idx = f"{line_start}+{match.start()}c"
+                    end_idx = f"{line_start}+{match.end()}c"
+                    # Replace the markdown syntax
+                    text_widget.delete(start_idx, end_idx)
+                    text_widget.insert(start_idx, match.group(1))
+                    new_end = f"{start_idx}+{len(match.group(1))}c"
+                    text_widget.tag_add("bold", start_idx, new_end)
+    
+    # Try to read and display README.md
+    try:
+        readme_path = os.path.join(os.path.dirname(__file__), "README.md")
+        with open(readme_path, 'r', encoding='utf-8') as f:
+            readme_content = f.read()
+        parse_and_insert_markdown(readme_content)
+    except FileNotFoundError:
+        text_widget.insert("1.0", get_translation("readme_not_found"))
+    except Exception as e:
+        text_widget.insert("1.0", f"{get_translation('error_reading_readme')}: {str(e)}")
+    
+    text_widget.config(state="disabled")  # Make it read-only
+    
+    # Close button
+    close_button = ttk.Button(main_frame, text=get_translation("close"), command=help_window.destroy)
+    close_button.pack(pady=(10, 0))
 
 def show_language_menu():
     clear_frame()

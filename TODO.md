@@ -12,7 +12,7 @@
 - [ ] Make UI prettier
 - [ ] Automate Toledo login
 - [ ] Make clicking logo in settings launch connector
-- [ ] Optimise timings
+- [x] Optimise timings
 - [ ] Make UI not dependent on screen size
 - [ ] Help button that refers to README or manual
 - [ ] Fix lag after setting manual click

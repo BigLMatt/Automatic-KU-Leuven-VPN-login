@@ -143,10 +143,10 @@ if __name__ == "__main__":
     # Start up actual login process
     # Open KU Leuven VPN page and Ivanti
     webbrowser.open("https://vpn.kuleuven.be")
-    adjusted_sleep(0.4)
+    adjusted_sleep(0.3)
     os.startfile(ivanti_path)
     find_and_activate_ivanti_window()
-    adjusted_sleep(0.5)
+    adjusted_sleep(0.4)
     
     original_pos = pyautogui.position()
     pyautogui.moveTo(0, 1)   # Move out of the way, to not interfere with image recognition
@@ -162,11 +162,11 @@ if __name__ == "__main__":
     pyautogui.press('enter')
     adjusted_sleep(0.8)
     pyautogui.press('enter')  # Confirm login
-    adjusted_sleep(6)
+    adjusted_sleep(5.2)
 
     # Open extra site
     webbrowser.open('https://uafw.icts.kuleuven.be')
-    adjusted_sleep(1.2)
+    adjusted_sleep(1.5)
 
     # Close tabs and Ivanti if requested
     if config.get("close_tabs", True):
