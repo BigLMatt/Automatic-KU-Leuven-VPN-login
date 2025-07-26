@@ -14,5 +14,5 @@
 - [ ] Make clicking logo in settings launch connector
 - [x] Optimise timings
 - [ ] Make UI not dependent on screen size
-- [ ] Help button that refers to README or manual
+- [x] Help button that refers to README or manual
 - [ ] Fix lag after setting manual click

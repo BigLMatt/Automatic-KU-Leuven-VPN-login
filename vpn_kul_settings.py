@@ -13,14 +13,20 @@ import sys
 
 import ctypes
 from ctypes import wintypes
+import re
 
 from translations import translations
 
-def get_translation(key):
-    return translations[config['language']].get(key, key)
+# Windows API constants
+SW_RESTORE = 9
+SW_SHOW = 5
+
+# Windows API functions
+user32 = ctypes.windll.user32
+kernel32 = ctypes.windll.kernel32
 
 def resource_path(relative_path):
-    """ Get correct path, works both in development and PyInstaller """
+    """Get correct path, works both in development and PyInstaller"""
     try:
         base_path = sys._MEIPASS
     except Exception:
@@ -32,8 +38,8 @@ SERVICE_NAME = "kuleuvenvpn"
 CONFIG_FILE = "vpn_config.json"
 ASSETS_FOLDER = resource_path("assets_settings")
 
-# Load configuration
 def load_config():
+    """Load configuration from file with defaults"""
     default_config = {
         "button_press_method": "image_recognition",
         "manual_x": 0,
@@ -44,77 +50,161 @@ def load_config():
         "ivanti_path": r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk",
         "language": "en"
     }
+    
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
             loaded_config = json.load(f)
-        # Update the loaded config with any missing keys from the default config
+        # Update loaded config with any missing keys from default config
         for key, value in default_config.items():
             if key not in loaded_config:
                 loaded_config[key] = value
         return loaded_config
     return default_config
 
-# Save configuration
-def save_config(config):
+def save_config(config_data):
+    """Save configuration to file"""
     with open(CONFIG_FILE, 'w') as f:
-        json.dump(config, f)
+        json.dump(config_data, f)
 
 # Load initial configuration
 config = load_config()
 
+def get_translation(key):
+    """Get translation for given key"""
+    return translations[config['language']].get(key, key)
+
 def resize_icon(image, target_width, target_height):
-    # Bepaal originele grootte
+    """Resize icon using subsample method"""
     original_width = image.width()
     original_height = image.height()
-
-    # Bereken subsample-factor
     x_factor = max(1, round(original_width / target_width))
     y_factor = max(1, round(original_height / target_height))
+    return image.subsample(x_factor, y_factor)
 
-    # Pas subsample toe (alleen verkleinen!)
-    resized = image.subsample(x_factor, y_factor)
-    return resized
+def clear_frame():
+    """Clear all widgets from root window"""
+    root.unbind_all("<MouseWheel>")
+    for widget in root.winfo_children():
+        widget.destroy()
+
+def load_username():
+    """Load username from .env file"""
+    if os.path.exists(ENV_FILE):
+        with open(ENV_FILE, "r") as f:
+            for line in f:
+                if line.startswith("USERNAME="):
+                    return line.strip().split("=", 1)[1]
+    return ""
+
+def save_credentials():
+    """Save username and password"""
+    username = username_entry.get().strip()
+    password = password_entry.get()
+
+    if not username or not password:
+        messagebox.showwarning(get_translation("invalid_entry"), get_translation("empty_user"))
+        return
+
+    keyring.set_password(SERVICE_NAME, username, password)
+    with open(ENV_FILE, "w") as f:
+        f.write(f"USERNAME={username}\n")
+    messagebox.showinfo(get_translation("saved"), get_translation("login_saved"))
+
+def delete_credentials():
+    """Delete saved credentials"""
+    username = load_username()
+    if not username:
+        messagebox.showinfo(get_translation("nothing_to_delete"), get_translation("no_saved_username"))
+        return
+
+    try:
+        keyring.delete_password(SERVICE_NAME, username)
+    except keyring.errors.PasswordDeleteError:
+        pass
+
+    if os.path.exists(ENV_FILE):
+        os.remove(ENV_FILE)
+    messagebox.showinfo(get_translation("deleted"), get_translation("login_deleted"))
+
+def find_and_activate_ivanti_window():
+    """Find Ivanti window and bring it to the front"""
+    def enum_windows_proc(hwnd, lParam):
+        if user32.IsWindowVisible(hwnd):
+            length = user32.GetWindowTextLengthW(hwnd)
+            if length > 0:
+                buffer = ctypes.create_unicode_buffer(length + 1)
+                user32.GetWindowTextW(hwnd, buffer, length + 1)
+                window_title = buffer.value.lower()
+                
+                if any(keyword in window_title for keyword in ['ivanti', 'secure access client']):
+                    user32.ShowWindow(hwnd, SW_RESTORE)
+                    user32.SetForegroundWindow(hwnd)
+                    user32.SetActiveWindow(hwnd)
+                    return False
+        return True
+
+    EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, wintypes.LPARAM)
+    user32.EnumWindows(EnumWindowsProc(enum_windows_proc), 0)
+
+def toggle_password_visibility(event):
+    """Toggle password visibility"""
+    if password_entry.cget('show') == '':
+        password_entry.config(show="*")
+        if use_icons:
+            eye_button.config(image=eye_closed)
+    else:
+        password_entry.config(show="")
+        if use_icons:
+            eye_button.config(image=eye_open)
+
+def change_language(lang_code):
+    """Change application language"""
+    config['language'] = lang_code
+    save_config(config)
+    root.title(get_translation("vpn_login_setup"))
+    show_main_menu()
 
 def show_main_menu():
+    """Display the main menu"""
     clear_frame()
 
-    # Create a main frame to hold all content
     main_frame = ttk.Frame(root)
     main_frame.pack(fill="both", expand=True)
 
-    # Add program icon
     scaled_icon = resize_icon(icon, 256, 256)
-    
     icon_label = ttk.Label(main_frame, image=scaled_icon)
-    icon_label.image = scaled_icon  # Keep a reference
+    icon_label.image = scaled_icon
     icon_label.pack(pady=(5, 0))
 
-    # Center frame for text and buttons
     center_frame = ttk.Frame(main_frame)
     center_frame.pack(expand=True)
 
-    # Main menu content
     ttk.Label(center_frame, text=get_translation("what_to_do"), font=("", 12, "bold")).pack(pady=(0, 15))
-    ttk.Button(center_frame, text=f"✏️  {get_translation('setup_login')}", width=30, command=show_modify_view).pack(pady=5)
-    ttk.Button(center_frame, text=f"🗑️  {get_translation('delete_login')}", width=30, command=show_delete_view).pack(pady=5)
-    ttk.Button(center_frame, text=f"🖱️  {get_translation('set_manual_click')}", width=30, command=show_manual_click_menu).pack(pady=5)
-    ttk.Button(center_frame, text=f"⚙️  {get_translation('options')}", width=30, command=show_options_menu).pack(pady=5)
-    ttk.Button(center_frame, text=f"🌐  {get_translation('language')}", width=30, command=show_language_menu).pack(pady=5)
-    ttk.Button(center_frame, text=f"❓ {get_translation('help')}", width=30, command=show_help).pack(pady=5)
-    ttk.Button(center_frame, text=f"❌ {get_translation('close')}", width=30, command=root.quit).pack(pady=5)
+    
+    buttons = [
+        ("✏️", "setup_login", show_modify_view),
+        ("🗑️", "delete_login", show_delete_view),
+        ("🖱️", "set_manual_click", show_manual_click_menu),
+        ("⚙️", "options", show_options_menu),
+        ("🌐", "language", show_language_menu),
+        ("❓", "help", show_help),
+        ("❌", "close", root.quit)
+    ]
+    
+    for emoji, key, command in buttons:
+        ttk.Button(center_frame, text=f"{emoji} {get_translation(key)}", 
+                  width=30, command=command).pack(pady=5)
 
 def show_help():
-    """Display the README.md content in a new window with basic markdown formatting"""
+    """Display the README.md content with markdown formatting"""
     help_window = tk.Toplevel(root)
     help_window.title(get_translation("help"))
     help_window.geometry("900x700")
     help_window.resizable(True, True)
     
-    # Create a frame with scrollbars
     main_frame = ttk.Frame(help_window)
     main_frame.pack(fill="both", expand=True, padx=10, pady=10)
     
-    # Create text widget with scrollbars
     text_frame = ttk.Frame(main_frame)
     text_frame.pack(fill="both", expand=True)
     
@@ -124,18 +214,22 @@ def show_help():
     
     text_widget.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
     
-    # Configure text tags for formatting
-    text_widget.tag_configure("h1", font=("Segoe UI", 18, "bold"), foreground="#2c3e50", spacing1=10, spacing3=5)
-    text_widget.tag_configure("h2", font=("Segoe UI", 16, "bold"), foreground="#34495e", spacing1=8, spacing3=4)
-    text_widget.tag_configure("h3", font=("Segoe UI", 14, "bold"), foreground="#34495e", spacing1=6, spacing3=3)
-    text_widget.tag_configure("h4", font=("Segoe UI", 12, "bold"), foreground="#34495e", spacing1=4, spacing3=2)
-    text_widget.tag_configure("bold", font=("Segoe UI", 11, "bold"))
-    text_widget.tag_configure("italic", font=("Segoe UI", 11, "italic"))
-    text_widget.tag_configure("code", font=("Consolas", 10), background="#f8f9fa", foreground="#e74c3c")
-    text_widget.tag_configure("list_item", lmargin1=20, lmargin2=40)
-    text_widget.tag_configure("numbered_item", lmargin1=20, lmargin2=40)
+    # Configure formatting tags
+    formatting_tags = {
+        "h1": {"font": ("Segoe UI", 18, "bold"), "foreground": "#2c3e50", "spacing1": 10, "spacing3": 5},
+        "h2": {"font": ("Segoe UI", 16, "bold"), "foreground": "#34495e", "spacing1": 8, "spacing3": 4},
+        "h3": {"font": ("Segoe UI", 14, "bold"), "foreground": "#34495e", "spacing1": 6, "spacing3": 3},
+        "h4": {"font": ("Segoe UI", 12, "bold"), "foreground": "#34495e", "spacing1": 4, "spacing3": 2},
+        "bold": {"font": ("Segoe UI", 11, "bold")},
+        "italic": {"font": ("Segoe UI", 11, "italic")},
+        "code": {"font": ("Consolas", 10), "background": "#f8f9fa", "foreground": "#e74c3c"},
+        "list_item": {"lmargin1": 20, "lmargin2": 40},
+        "numbered_item": {"lmargin1": 20, "lmargin2": 40}
+    }
     
-    # Pack scrollbars and text widget
+    for tag, config in formatting_tags.items():
+        text_widget.tag_configure(tag, **config)
+    
     v_scrollbar.pack(side="right", fill="y")
     h_scrollbar.pack(side="bottom", fill="x")
     text_widget.pack(side="left", fill="both", expand=True)
@@ -143,12 +237,11 @@ def show_help():
     def parse_and_insert_markdown(content):
         """Parse basic markdown and insert with formatting"""
         lines = content.split('\n')
-        current_pos = "1.0"
         
         for line in lines:
             line_start = text_widget.index(tk.INSERT)
             
-            # Headers
+            # Handle headers
             if line.startswith('#### '):
                 text_widget.insert(tk.INSERT, line[5:] + '\n')
                 text_widget.tag_add("h4", line_start, f"{line_start} lineend")
@@ -168,7 +261,6 @@ def show_help():
                 text_widget.insert(tk.INSERT, formatted_line + '\n')
                 
                 # Apply bold formatting
-                import re
                 bold_pattern = r'\*\*(.*?)\*\*'
                 for match in re.finditer(bold_pattern, line):
                     start_idx = f"{line_start}+{match.start()}c"
@@ -210,55 +302,6 @@ def show_language_menu():
         ttk.Button(root, text=lang_name, width=30, command=lambda lc=lang_code: change_language(lc)).pack(pady=5)
 
     ttk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack(pady=(0, 10), ipadx=5, ipady=3)
-
-def change_language(lang_code):
-    config['language'] = lang_code
-    save_config(config)
-    root.title(get_translation("vpn_login_setup"))
-    show_main_menu()
-
-def save_credentials():
-    username = username_entry.get().strip()
-    password = password_entry.get()
-
-    if not username or not password:
-        messagebox.showwarning(get_translation("invalid_entry"), get_translation("empty_user"))
-        return
-
-    keyring.set_password(SERVICE_NAME, username, password)
-
-    with open(ENV_FILE, "w") as f:
-        f.write(f"USERNAME={username}\n")
-
-    messagebox.showinfo(get_translation("saved"), get_translation("login_saved"))
-
-def delete_credentials():
-    username = load_username()
-    if not username:
-        messagebox.showinfo(get_translation("nothing_to_delete"), get_translation("no_saved_username"))
-        return
-
-    try:
-        keyring.delete_password(SERVICE_NAME, username)
-    except keyring.errors.PasswordDeleteError:
-        pass
-
-    if os.path.exists(ENV_FILE):
-        os.remove(ENV_FILE)
-
-    messagebox.showinfo(get_translation("deleted"), get_translation("login_deleted"))
-
-password_visible = False
-
-def toggle_password_visibility(event):
-    if password_entry.cget('show') == '':
-        password_entry.config(show="*")
-        if use_icons:
-            eye_button.config(image=eye_closed)
-    else:
-        password_entry.config(show="")
-        if use_icons:
-            eye_button.config(image=eye_open)
 
 def show_modify_view():
     global username_entry, password_entry, eye_button
@@ -499,7 +542,7 @@ def show_manual_click_menu():
     tk.Button(root, text=get_translation("back_to_menu"), command=lambda: [setattr(sys.modules[__name__], 'capture_active', False), show_main_menu()]).pack(ipadx=5, ipady=3)
 
 def clear_frame():
-    root.unbind_all("<MouseWheel>")  # Unbind mousewheel event
+    root.unbind_all("<MouseWheel>")
     for widget in root.winfo_children():
         widget.destroy()
 
