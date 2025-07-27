@@ -102,6 +102,25 @@ def press_connect_button():
     elif method == "manual_coordinates":
         pyautogui.click(config["manual_x"], config["manual_y"])
 
+def check_if_logged_in():
+    '''Check if when the vpn page is loaded, the user is logged in.'''
+    top_login = None
+    bottom_login = None
+
+    try:
+        top_login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'login_page_top.png'), confidence=0.75)
+    except Exception:
+        pass
+    try:
+        bottom_login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'login_page_bottom.png'), confidence=0.75)
+    except Exception:
+        return
+    
+    if top_login or bottom_login:
+        ctypes.windll.user32.MessageBoxW(0, "Please log into toledo or KUL services and try again.", "VPN Login Error", 0x10)
+        sys.exit(1)
+    return
+
 
 if __name__ == "__main__":
 
@@ -144,6 +163,7 @@ if __name__ == "__main__":
     # Open KU Leuven VPN page and Ivanti
     webbrowser.open("https://vpn.kuleuven.be")
     adjusted_sleep(0.3)
+    check_if_logged_in()
     os.startfile(ivanti_path)
     find_and_activate_ivanti_window()
     adjusted_sleep(0.4)
@@ -162,11 +182,11 @@ if __name__ == "__main__":
     pyautogui.press('enter')
     adjusted_sleep(0.8)
     pyautogui.press('enter')  # Confirm login
-    adjusted_sleep(5.2)
+    adjusted_sleep(5.4)
 
     # Open extra site
     webbrowser.open('https://uafw.icts.kuleuven.be')
-    adjusted_sleep(1.5)
+    adjusted_sleep(1.8)
 
     # Close tabs and Ivanti if requested
     if config.get("close_tabs", True):

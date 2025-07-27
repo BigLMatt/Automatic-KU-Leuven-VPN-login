@@ -10,7 +10,7 @@
 - [ ] Test on multiple machines
 - [x] Add dutch language option
 - [ ] Make UI prettier
-- [ ] Automate Toledo login
+- [x] Check Toledo login
 - [ ] Make clicking logo in settings launch connector
 - [x] Optimise timings
 - [ ] Make UI not dependent on screen size
