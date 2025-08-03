@@ -590,16 +590,18 @@ def find_and_activate_ivanti_window():
     user32.EnumWindows(EnumWindowsProc(enum_windows_proc), 0)
 
 # Setup window
+screen_width,screen_height = pyautogui.size()
+screen_width *= 0.25
+screen_height *= 0.42
 root = tk.Tk()
+root.geometry(str(int(screen_width))+"x"+str(int(screen_height)))
+root.resizable(True,True)
 root.title(get_translation("vpn_login_setup"))
-root.geometry("700x600")
 
 # Set both window corner and taskbar icons
 icon_path = os.path.join(ASSETS_FOLDER, "programicon.png")
 icon = tk.PhotoImage(file=icon_path)
 root.iconphoto(True, icon)
-
-root.resizable(False, False)
 
 # Try loading icons
 try:
