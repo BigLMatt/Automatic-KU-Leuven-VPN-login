@@ -49,7 +49,7 @@ def load_config():
         "close_ivanti": True,
         "ivanti_path": r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk",
         "img_rel_x": 0.826,
-        "img_rel_x": 0.415,
+        "img_rel_y": 0.415,
         "language": "en"
     }
     
@@ -201,7 +201,7 @@ def show_help():
     """Display the README.md content with markdown formatting"""
     help_window = tk.Toplevel(root)
     help_window.title(get_translation("help"))
-    help_window.geometry("900x700")
+    help_window.geometry("1200x900")
     help_window.resizable(True, True)
     
     main_frame = ttk.Frame(help_window)
@@ -275,8 +275,7 @@ def show_help():
     
     # Try to read and display README.md
     try:
-        readme_path = os.path.join(os.path.dirname(__file__), "README.md")
-        with open(readme_path, 'r', encoding='utf-8') as f:
+        with open(resource_path("README.md"), 'r', encoding='utf-8') as f:
             readme_content = f.read()
         parse_and_insert_markdown(readme_content)
     except FileNotFoundError:

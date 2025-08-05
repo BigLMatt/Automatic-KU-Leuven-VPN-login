@@ -88,7 +88,8 @@ def press_connect_button():
 
             # If we found a button, click it
             if ivanti_window:
-                rel_x, rel_y = 0.826, 0.415
+                rel_x = config.get("img_rel_x")
+                rel_y = config.get("img_rel_y")
                 connect_button_x = ivanti_window.left + int(ivanti_window.width * rel_x)
                 connect_button_y = ivanti_window.top + int(ivanti_window.height * rel_y)
                 pyautogui.click(connect_button_x, connect_button_y)
