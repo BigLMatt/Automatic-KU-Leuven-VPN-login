@@ -45,30 +45,28 @@ def press_button():
     ivanti_window = None
     
     # Start with highest confidence and work down
-    for confidence in [0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65]:
-        try:
-            ivanti_window = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'full_ivanti.png'), confidence=confidence)
-            if ivanti_window:
-                print(f"Found ivanti window with confidence {confidence}")
-                break
-        except pyautogui.ImageNotFoundException:
-            print(f"No ivanti window found with confidence {confidence}")
-            continue
-        except Exception as e:
-            print(f"Error finding ivanti window at confidence {confidence}: {e}")
-            continue
+    for image in ["full_ivanti1.png","full_ivanti2.png","A_zone.png","I_zone.png"]:
+        for confidence in [0.99, 0.85, 0.7, 0.55]:
+            try:
+                ivanti_window = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, image), confidence=confidence)
+                if ivanti_window:
+                    print(f"Found ivanti window with confidence {confidence}")
+                    break
+            except pyautogui.ImageNotFoundException:
+                print(f"No ivanti window found with confidence {confidence}")
+                continue
+            except Exception as e:
+                print(f"Error finding ivanti window at confidence {confidence}: {e}")
+                continue
 
-    # If we found a button, click it
-    if ivanti_window:
-        rel_x, rel_y = 0.826, 0.398
-        connect_button_x = ivanti_window.left + int(ivanti_window.width * rel_x)
-        connect_button_y = ivanti_window.top + int(ivanti_window.height * rel_y)
-        print(f"Clicking ivanti window at ({connect_button_x}, {connect_button_y})")
-        pyautogui.click(connect_button_x, connect_button_y)
-        return  # Success, exit function
-    else:
-        print("No button found. Exiting.")
-        return  # Failure, exit function
+        # If we found a button, click it
+        if ivanti_window:
+            rel_x, rel_y = 0.826, 0.415
+            connect_button_x = ivanti_window.left + int(ivanti_window.width * rel_x)
+            connect_button_y = ivanti_window.top + int(ivanti_window.height * rel_y)
+            print(f"Clicking ivanti window at ({connect_button_x}, {connect_button_y})")
+            pyautogui.click(connect_button_x, connect_button_y)
+            return
 
 find_and_activate_ivanti_window()
 time.sleep(0.5)  # Give it a moment to come to front

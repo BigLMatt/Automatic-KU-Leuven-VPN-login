@@ -48,6 +48,8 @@ def load_config():
         "close_tabs": True,
         "close_ivanti": True,
         "ivanti_path": r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk",
+        "img_rel_x": 0.826,
+        "img_rel_x": 0.415,
         "language": "en"
     }
     
@@ -387,16 +389,16 @@ def show_options_menu():
     x_frame = ttk.Frame(click_frame)
     x_frame.pack(fill="x")
     ttk.Label(x_frame, text=get_translation("x_coordinate")).pack(side="left")
-    x_entry = ttk.Entry(x_frame, width=10)
-    x_entry.insert(0, str(config["manual_x"]))
-    x_entry.pack(side="left", padx=(5, 10))
+    x_manual = ttk.Entry(x_frame, width=10)
+    x_manual.insert(0, str(config["manual_x"]))
+    x_manual.pack(side="left", padx=(5, 10))
     
     y_frame = ttk.Frame(click_frame)
     y_frame.pack(fill="x", pady=(5, 0))
     ttk.Label(y_frame, text=get_translation("y_coordinate")).pack(side="left")
-    y_entry = ttk.Entry(y_frame, width=10)
-    y_entry.insert(0, str(config["manual_y"]))
-    y_entry.pack(side="left", padx=(5, 10))
+    y_manual = ttk.Entry(y_frame, width=10)
+    y_manual.insert(0, str(config["manual_y"]))
+    y_manual.pack(side="left", padx=(5, 10))
 
     # Speed Multiplier
     speed_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("speed_multiplier"), padding=10)
@@ -440,11 +442,30 @@ def show_options_menu():
     
     ttk.Button(ivanti_frame, text=get_translation("browse"), command=browse_ivanti_path).pack(side="right")
 
+    # Relative position image click
+    click_frame_rel = ttk.LabelFrame(scrollable_frame, text=get_translation("relative_click_position"), padding=10)
+    click_frame_rel.pack(fill="x", padx=10, pady=10)
+    
+    x_frame_rel = ttk.Frame(click_frame_rel)
+    x_frame_rel.pack(fill="x")
+    ttk.Label(x_frame_rel, text=get_translation("relative_x")).pack(side="left")
+    x_rel = ttk.Entry(x_frame_rel, width=10)
+    x_rel.insert(0, str(config["img_rel_x"]))
+    x_rel.pack(side="left", padx=(5, 10))
+    
+    y_frame_rel = ttk.Frame(click_frame_rel)
+    y_frame_rel.pack(fill="x", pady=(5, 0))
+    ttk.Label(y_frame_rel, text=get_translation("relative_y")).pack(side="left")
+    y_rel = ttk.Entry(y_frame_rel, width=10)
+    y_rel.insert(0, str(config["img_rel_y"]))
+    y_rel.pack(side="left", padx=(5, 10))
+
+
     def save_options():
         config["button_press_method"] = method_var.get()
         try:
-            x = int(x_entry.get())
-            y = int(y_entry.get())
+            x = int(x_manual.get())
+            y = int(y_manual.get())
 
             if x < 0 or y < 0:
                 raise ValueError("Negative coordinates")
@@ -457,7 +478,21 @@ def show_options_menu():
             config["manual_y"] = y
 
         except ValueError:
-            messagebox.showerror(get_translation("error"), get_translation("invalid_coordinates"))
+            messagebox.showerror(get_translation("error"), get_translation("invalid_coordinates_absolute"))
+            return
+        
+        try:
+            x = float(x_rel.get())
+            y = float(y_rel.get())
+
+            if x < 0 or y < 0 or x > 1 or y > 1:
+                raise ValueError("Invalid coordinates")
+
+            config["img_rel_x"] = x
+            config["img_rel_y"] = y
+
+        except ValueError:
+            messagebox.showerror(get_translation("error"), get_translation("invalid_coordinates_relative"))
             return
         config["speed_multiplier"] = speed_var.get()
         config["close_tabs"] = close_tabs_var.get()
@@ -591,7 +626,7 @@ def find_and_activate_ivanti_window():
 
 # Setup window
 screen_width,screen_height = pyautogui.size()
-screen_width *= 0.25
+screen_width *= 0.3
 screen_height *= 0.42
 root = tk.Tk()
 root.geometry(str(int(screen_width))+"x"+str(int(screen_height)))
@@ -615,7 +650,6 @@ try:
     
     use_icons = True
 except Exception as e:
-    print(f"Error loading icons: {e}")
     use_icons = False
 
 # Start GUI

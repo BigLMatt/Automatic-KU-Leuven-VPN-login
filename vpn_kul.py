@@ -75,23 +75,25 @@ def press_connect_button():
         ivanti_window = None
     
         # Start with highest confidence and work down
-        for confidence in [0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65]:
-            try:
-                ivanti_window = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'full_ivanti.png'), confidence=confidence)
-                if ivanti_window:
-                    break
-            except Exception:
-                continue
+        for image in ["full_ivanti1.png","full_ivanti2.png","A_zone.png","I_zone.png"]:
+            for confidence in [0.99, 0.85, 0.7, 0.55]:
+                try:
+                    ivanti_window = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, image), confidence=confidence)
+                    if ivanti_window:
+                        break
+                except pyautogui.ImageNotFoundException:
+                    continue
+                except Exception:
+                    pass
 
-        # If we found a button, click it
-        if ivanti_window:
-            rel_x, rel_y = 0.826, 0.398     # Relative coordinates for the connect button in the full Ivanti window
-            connect_button_x = ivanti_window.left + int(ivanti_window.width * rel_x)
-            connect_button_y = ivanti_window.top + int(ivanti_window.height * rel_y)
-            pyautogui.click(connect_button_x, connect_button_y)
-            return
+            # If we found a button, click it
+            if ivanti_window:
+                rel_x, rel_y = 0.826, 0.415
+                connect_button_x = ivanti_window.left + int(ivanti_window.width * rel_x)
+                connect_button_y = ivanti_window.top + int(ivanti_window.height * rel_y)
+                pyautogui.click(connect_button_x, connect_button_y)
+                return
             
-        # If no button found, use manual coordinates
         if method == "both_image_first":
             pyautogui.click(config["manual_x"], config["manual_y"])
             return
@@ -104,22 +106,15 @@ def press_connect_button():
 
 def check_if_logged_in():
     '''Check if when the vpn page is loaded, the user is logged in.'''
-    top_login = None
-    bottom_login = None
-
-    try:
-        top_login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'login_page_top.png'), confidence=0.75)
-    except Exception:
-        pass
-    try:
-        bottom_login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, 'login_page_bottom.png'), confidence=0.75)
-    except Exception:
-        return
-    
-    if top_login or bottom_login:
-        ctypes.windll.user32.MessageBoxW(0, "Please log into toledo or KUL services and try again.", "VPN Login Error", 0x10)
-        sys.exit(1)
-    return
+    login = None
+    for login_image in ["login_page_top1.png","login_page_bottom1.png","login_page_middle1.png","login_page_middle2.png""login_page_top2.png","login_page_bottom2.png"]:
+        try:
+            login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, login_image), confidence=0.99)
+        except Exception:
+            continue
+        if login:
+            ctypes.windll.user32.MessageBoxW(0, "Please log into toledo or KUL services and try again.", "VPN Login Error", 0x10)
+            sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -162,7 +157,7 @@ if __name__ == "__main__":
     # Start up actual login process
     # Open KU Leuven VPN page and Ivanti
     webbrowser.open("https://vpn.kuleuven.be")
-    adjusted_sleep(0.3)
+    adjusted_sleep(1)
     check_if_logged_in()
     os.startfile(ivanti_path)
     find_and_activate_ivanti_window()
@@ -186,7 +181,7 @@ if __name__ == "__main__":
 
     # Open extra site
     webbrowser.open('https://uafw.icts.kuleuven.be')
-    adjusted_sleep(1.8)
+    adjusted_sleep(2.5)
 
     # Close tabs and Ivanti if requested
     if config.get("close_tabs", True):

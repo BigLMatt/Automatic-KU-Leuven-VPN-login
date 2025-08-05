@@ -23,6 +23,8 @@ There is also an image recognition option for clicking the button which is selec
 
 Other stability issues may be solved by **checking if the ivanti secure access path references correctly to the one on your PC**. The speed of the different actions can be slowed to 0.5 for stability if the clicks are too fast. The actions can also be sped up to 2 times normal speed.
 
+If the recognition does succeed but the wrong place is clicked (consistently), then for small errors the relative position inside the window can be tweaked.
+
 ## Order of operations
 
 ### User has manually logged into toledo
@@ -53,4 +55,8 @@ Ivanti secure access and the two browser tabs can be closed automatically.
 
 After setting the manual click coordinate, there is a few seconds of noticable lag.
 
-When B-zone is not selected in blue (happens when it has been selected last) or any other UI elements differ, image recognition will not work.
+When none of the zones are selected in blue, the image recognition will fail.
+Image recognition might also fail on machines that have a different resolution than the one used for the reference images.
+
+It is better to use manual click coordinate in these cases.
+Alternatively you could upload your own screenshots of ivanti in the assets_connector and use the source code.

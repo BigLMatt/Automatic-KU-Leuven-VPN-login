@@ -5,7 +5,6 @@
 - [x] Fix pyautoGUI button recognition
 - [ ] Make image recogniton more robust (other connection zones blue/selected)
 - [ ] Bundle config and .env better so .exe's can be standalone
-- [ ] Make install lighter
 - [ ] Test on multiple machines
 - [x] Add dutch language option
 - [ ] Make UI prettier

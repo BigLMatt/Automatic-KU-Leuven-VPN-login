@@ -35,7 +35,8 @@ translations = {
         "ivanti_path": "Ivanti Path",
         "browse": "Browse",
         "error": "Error",
-        "invalid_coordinates": "Please enter valid integer coordinates.",
+        "invalid_coordinates_absolute": "Please enter valid integer coordinates.",
+        "invalid_coordinates_relative": "Please enter valid coordinates between 0 and 1.",
         "options_saved": "Options have been saved successfully.",
         "set_manual_click_position": "Set Manual Click Position",
         "move_mouse_instruction": "Move your mouse to the desired position and click connect.",
@@ -50,7 +51,10 @@ translations = {
         "select_language": "Select a language",
         "help": "Help",
         "readme_not_found": "README.md file not found.",
-        "error_reading_readme": "Error reading README file"
+        "error_reading_readme": "Error reading README file",
+        "relative_x" : "Relative X coordinate",
+        "relative_y" : "Relative Y coordinate",
+        "relative_click_position": "Relative position of connect button in ivanti window"
     },
     "nl": {
         "invalid_entry": "Ongeldige login",
@@ -88,7 +92,8 @@ translations = {
         "ivanti_path": "Ivanti pad in systeem",
         "browse": "Bladeren",
         "error": "Error",
-        "invalid_coordinates": "Vul geldige gehele waardes voor coördinaten in.",
+        "invalid_coordinates_absolute": "Vul geldige gehele waardes voor coördinaten in.",
+        "invalid_coordinates_relative": "Vul geldige waardes tussen 0 and 1 in voor coördinaten.",
         "options_saved": "Opties zijn succesvol opgeslagen.",
         "set_manual_click_position": "Stel manuele klik positie in",
         "move_mouse_instruction": "Beweeg de muis naar de gewenste positie en klik op connect.",
@@ -103,6 +108,9 @@ translations = {
         "select_language": "Selecteer een taal",
         "help": "Help",
         "readme_not_found": "README.md bestand niet gevonden.",
-        "error_reading_readme": "Fout bij het lezen van README bestand"
+        "error_reading_readme": "Fout bij het lezen van README bestand",
+        "relative_x" : "Relatief X coördinaat",
+        "relative_y" : "Relatief Y coördinaat",
+        "relative_click_position": "Relatieve positie van connect knop in ivanti sherm"
     }
 }
