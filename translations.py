@@ -109,8 +109,8 @@ translations = {
         "help": "Help",
         "readme_not_found": "README.md bestand niet gevonden.",
         "error_reading_readme": "Fout bij het lezen van README bestand",
-        "relative_x" : "Relatief X coördinaat",
-        "relative_y" : "Relatief Y coördinaat",
+        "relative_x" : "Relatieve X coördinaat",
+        "relative_y" : "Relatieve Y coördinaat",
         "relative_click_position": "Relatieve positie van connect knop in ivanti sherm"
     }
 }

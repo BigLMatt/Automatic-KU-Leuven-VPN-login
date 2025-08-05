@@ -12,5 +12,5 @@
 - [x] Optimise timings
 - [x] Make UI not dependent on screen size
 - [x] Help button that refers to README or manual
-- [ ] Fix lag after setting manual click
+- [x] Fix lag after setting manual click
 - [ ] Make an installer

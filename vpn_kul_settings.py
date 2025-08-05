@@ -303,7 +303,7 @@ def show_language_menu():
     for lang_name, lang_code in languages:
         ttk.Button(root, text=lang_name, width=30, command=lambda lc=lang_code: change_language(lc)).pack(pady=5)
 
-    ttk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack(pady=(0, 10), ipadx=5, ipady=3)
+    ttk.Button(root, text=get_translation("back_to_menu"), command=show_main_menu).pack(pady=(30, 10), ipadx=5, ipady=3)
 
 def show_modify_view():
     global username_entry, password_entry, eye_button
@@ -363,12 +363,17 @@ def show_options_menu():
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw", tags="scrollable_frame")
     canvas.configure(yscrollcommand=scrollbar.set)
 
+    style = ttk.Style()
+
     # Styling
-    title_font = Font(family="Helvetica", size=12, weight="bold")
-    section_bg = "#f0f0f0"
+    title_font = Font(family="Helvetica", size=10, weight="bold")
+    section_bg = "#F0F0F0"
+
+    style.configure("Custom.TLabelframe", background=section_bg, borderwidth=10, relief="solid")
+    style.configure("Custom.TLabelframe.Label", background=section_bg, font=title_font)
     
     # Button Press Method
-    method_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("button_press_method"), padding=10)
+    method_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("button_press_method"), padding=10, style= "Custom.TLabelframe")
     method_frame.pack(fill="x", padx=10, pady=10)
     
     method_var = tk.StringVar(value=config["button_press_method"])
@@ -383,7 +388,7 @@ def show_options_menu():
         ttk.Radiobutton(method_frame, text=text, variable=method_var, value=value).pack(anchor="w", pady=2)
 
     # Manual Click Position
-    click_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("manual_click_position"), padding=10)
+    click_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("manual_click_position"), padding=10, style= "Custom.TLabelframe")
     click_frame.pack(fill="x", padx=10, pady=10)
     
     x_frame = ttk.Frame(click_frame)
@@ -401,7 +406,7 @@ def show_options_menu():
     y_manual.pack(side="left", padx=(5, 10))
 
     # Speed Multiplier
-    speed_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("speed_multiplier"), padding=10)
+    speed_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("speed_multiplier"), padding=10, style= "Custom.TLabelframe")
     speed_frame.pack(fill="x", padx=10, pady=10)
     
     speed_var = tk.DoubleVar(value=config["speed_multiplier"])
@@ -416,7 +421,7 @@ def show_options_menu():
     speed_slider.bind("<Motion>", update_speed_label)
 
     # Closing Options
-    closing_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("closing_options"), padding=10)
+    closing_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("closing_options"), padding=10, style= "Custom.TLabelframe")
     closing_frame.pack(fill="x", padx=10, pady=10)
     
     close_tabs_var = tk.BooleanVar(value=config.get("close_tabs", True))
@@ -428,7 +433,7 @@ def show_options_menu():
     close_ivanti_check.pack(anchor="w", pady=2)
 
     # Ivanti Path
-    ivanti_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("ivanti_path"), padding=10)
+    ivanti_frame = ttk.LabelFrame(scrollable_frame, text=get_translation("ivanti_path"), padding=10, style= "Custom.TLabelframe")
     ivanti_frame.pack(fill="x", padx=10, pady=10)
     
     ivanti_path_var = tk.StringVar(value=config.get("ivanti_path", r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk"))
@@ -443,7 +448,7 @@ def show_options_menu():
     ttk.Button(ivanti_frame, text=get_translation("browse"), command=browse_ivanti_path).pack(side="right")
 
     # Relative position image click
-    click_frame_rel = ttk.LabelFrame(scrollable_frame, text=get_translation("relative_click_position"), padding=10)
+    click_frame_rel = ttk.LabelFrame(scrollable_frame, text=get_translation("relative_click_position"), padding=10, style= "Custom.TLabelframe")
     click_frame_rel.pack(fill="x", padx=10, pady=10)
     
     x_frame_rel = ttk.Frame(click_frame_rel)
