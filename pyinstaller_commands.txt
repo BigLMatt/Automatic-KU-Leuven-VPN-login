@@ -1,0 +1,5 @@
+Settings executable
+pyinstaller --clean --onefile --windowed --icon=assets_settings/programicon.ico --add-data "README.md;." --add-data "assets_settings;assets_settings" vpn_kul_settings.py
+
+Connector executable
+pyinstaller --onefile --windowed --icon=assets_connector/programicon.ico --add-data "assets_connector;assets_connector" vpn_kul.py   

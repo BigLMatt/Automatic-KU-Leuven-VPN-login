@@ -279,7 +279,7 @@ def show_help():
             readme_content = f.read()
         parse_and_insert_markdown(readme_content)
     except FileNotFoundError:
-        text_widget.insert("1.0", get_translation("readme_not_found"))
+        text_widget.insert("1.0", f"{get_translation('readme_not_found')}\n\n{resource_path('README.md')}")
     except Exception as e:
         text_widget.insert("1.0", f"{get_translation('error_reading_readme')}: {str(e)}")
     

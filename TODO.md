@@ -13,4 +13,4 @@
 - [x] Make UI not dependent on screen size
 - [x] Help button that refers to README or manual
 - [x] Fix lag after setting manual click
-- [ ] Make an installer
+- [x] Make an installer

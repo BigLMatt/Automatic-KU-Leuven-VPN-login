@@ -35,6 +35,8 @@ def load_config():
         "speed_multiplier": 1.0,
         "close_tabs": True,
         "close_ivanti": True,
+        "img_rel_x": 0.826,
+        "img_rel_y": 0.414,
         "ivanti_path": r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk"
     }
 
