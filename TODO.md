@@ -14,3 +14,6 @@
 - [x] Help button that refers to README or manual
 - [x] Fix lag after setting manual click
 - [x] Make an installer
+- [x] Fix timings
+- [x] Make check for login faster (less test images and confidences)
+- [x] Set up cancel key for connector while running

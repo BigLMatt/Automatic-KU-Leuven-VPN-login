@@ -1,6 +1,8 @@
 import sys
 import webbrowser
 import os
+import _thread
+from pynput import keyboard as kb
 import time
 import pyautogui
 import keyring
@@ -110,86 +112,103 @@ def press_connect_button():
 def check_if_logged_in():
     '''Check if when the vpn page is loaded, the user is logged in.'''
     login = None
-    for login_image in ["login_page_top1.png","login_page_bottom1.png","login_page_middle1.png","login_page_middle2.png""login_page_top2.png","login_page_bottom2.png"]:
+    for login_image in ["login_page_top1.png","login_page_middle1.png","login_page_middle2.png","login_page_bottom2.png"]:
         try:
-            login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, login_image), confidence=0.99)
+            login = pyautogui.locateOnScreen(os.path.join(ASSETS_FOLDER, login_image), confidence=0.8)
         except Exception:
             continue
         if login:
             ctypes.windll.user32.MessageBoxW(0, "Please log into toledo or KUL services and try again.", "VPN Login Error", 0x10)
             sys.exit(1)
 
+def start_esc_interrupt():
+    def on_press(key):
+        if key == kb.Key.esc:
+            _thread.interrupt_main()
+    listener = kb.Listener(on_press=on_press)
+    listener.daemon = True
+    listener.start()
+
 
 if __name__ == "__main__":
 
-    SERVICE_NAME = "kuleuvenvpn"
-    ENV_FILE = ".env"
-    CONFIG_FILE = "vpn_config.json"
-    ASSETS_FOLDER = resource_path("assets_connector")
+    start_esc_interrupt()
+    try:
+        SERVICE_NAME = "kuleuvenvpn"
+        ENV_FILE = ".env"
+        CONFIG_FILE = "vpn_config.json"
+        ASSETS_FOLDER = resource_path("assets_connector")
 
-    config = load_config()
+        config = load_config()
 
-    # Windows API constants
-    SW_RESTORE = 9
-    SW_SHOW = 5
+        # Windows API constants
+        SW_RESTORE = 9
+        SW_SHOW = 5
 
-    # Windows API functions
-    user32 = ctypes.windll.user32
-    kernel32 = ctypes.windll.kernel32
+        # Windows API functions
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
 
-    USERNAME = load_username()
-    ivanti_path = config.get("ivanti_path", r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk")
-    speed_multiplier = config.get("speed_multiplier", 1.0)
+        USERNAME = load_username()
+        ivanti_path = config.get("ivanti_path", r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pulse Secure\Ivanti Secure Access Client.lnk")
+        speed_multiplier = config.get("speed_multiplier", 1.0)
 
-    # Check if nessecary information is available
-    if USERNAME:
-        PASSWORD = keyring.get_password(SERVICE_NAME, USERNAME)
-    else:
-        PASSWORD = None
+        # Check if nessecary information is available
+        if USERNAME:
+            PASSWORD = keyring.get_password(SERVICE_NAME, USERNAME)
+        else:
+            PASSWORD = None
 
-    if not USERNAME or not PASSWORD:
-        ctypes.windll.user32.MessageBoxW(0, "Missing VPN credentials.\nPlease run the setup tool to configure them.", "VPN Login Error", 0x10)
-        sys.exit(1)
-
-    # Check for valid manual coordinates when required
-    if config["button_press_method"] in ["manual_coordinates", "both_image_first"]:
-        if not config["manual_x"] or not config["manual_y"]:
-            ctypes.windll.user32.MessageBoxW(0, "Missing or invalid manual click coordinates.\nPlease run the setup tool to configure the click coordinates.", "VPN Login Error", 0x10)
+        if not USERNAME or not PASSWORD:
+            ctypes.windll.user32.MessageBoxW(0, "Missing VPN credentials.\nPlease run the setup tool to configure them.", "VPN Login Error", 0x10)
             sys.exit(1)
 
-    # Start up actual login process
-    # Open KU Leuven VPN page and Ivanti
-    webbrowser.open("https://vpn.kuleuven.be")
-    adjusted_sleep(1)
-    check_if_logged_in()
-    os.startfile(ivanti_path)
-    find_and_activate_ivanti_window()
-    adjusted_sleep(0.4)
-    
-    original_pos = pyautogui.position()
-    pyautogui.moveTo(0, 1)   # Move out of the way, to not interfere with image recognition
-    press_connect_button()
-    pyautogui.moveTo(original_pos)
-    adjusted_sleep(0.8)
-    
+        # Check for valid manual coordinates when required
+        if config["button_press_method"] in ["manual_coordinates", "both_image_first"]:
+            if not config["manual_x"] or not config["manual_y"]:
+                ctypes.windll.user32.MessageBoxW(0, "Missing or invalid manual click coordinates.\nPlease run the setup tool to configure the click coordinates.", "VPN Login Error", 0x10)
+                sys.exit(1)
 
-    # Fill in credentials
-    pyautogui.write(USERNAME)
-    pyautogui.press('tab')
-    pyautogui.write(PASSWORD)
-    pyautogui.press('enter')
-    adjusted_sleep(0.8)
-    pyautogui.press('enter')  # Confirm login
-    adjusted_sleep(5.4)
+        # Start up actual login process
+        # Open KU Leuven VPN page and Ivanti
+        webbrowser.open("https://vpn.kuleuven.be")
+        adjusted_sleep(1)
+        check_if_logged_in()
+        os.startfile(ivanti_path)
+        time.sleep(1)
+        find_and_activate_ivanti_window()
+        adjusted_sleep(0.5)
+        
+        original_pos = pyautogui.position()
+        pyautogui.moveTo(0, 1)   # Move out of the way, to not interfere with image recognition
+        press_connect_button()
+        pyautogui.moveTo(original_pos)
+        adjusted_sleep(2)
+        
 
-    # Open extra site
-    webbrowser.open('https://uafw.icts.kuleuven.be')
-    adjusted_sleep(2.5)
+        # Fill in credentials
+        pyautogui.write(USERNAME)
+        pyautogui.press('tab')
+        pyautogui.write(PASSWORD)
+        pyautogui.press('enter')
+        adjusted_sleep(1.5)
+        pyautogui.press('enter')  # Confirm login
+        adjusted_sleep(6)
 
-    # Close tabs and Ivanti if requested
-    if config.get("close_tabs", True):
-        pyautogui.hotkey('ctrl', 'w')
-        pyautogui.hotkey('ctrl', 'w')
+        # Open extra site
+        webbrowser.open('https://uafw.icts.kuleuven.be')
+        adjusted_sleep(3)
 
-    if config.get("close_ivanti", True):
-        os.system('powershell -command "(Get-Process | Where-Object {$_.MainWindowTitle -like \'*Ivanti*\'}) | ForEach-Object { $_.CloseMainWindow() }"')
+        # Close tabs and Ivanti if requested
+        if config.get("close_tabs", True):
+            pyautogui.hotkey('ctrl', 'w')
+            pyautogui.hotkey('ctrl', 'w')
+
+        if config.get("close_ivanti", True):
+            os.system('powershell -command "(Get-Process | Where-Object {$_.MainWindowTitle -like \'*Ivanti*\'}) | ForEach-Object { $_.CloseMainWindow() }"')
+    except(KeyboardInterrupt):
+            try:
+                ctypes.windll.user32.MessageBoxW(0, "Execution stopped by user (ESC).", "VPN KUL Connector", 0x30)
+            except Exception:
+                pass
+            sys.exit(1)
